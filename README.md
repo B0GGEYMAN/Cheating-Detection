@@ -1,0 +1,6 @@
+Exams are critical for measuring students’ knowledge, skills, and academic performance. They’re used to assess competency, issue credentials, and promote merit-based advancement in education and the workplace. But exam fraud is a growing problem, especially with online and remote assessments. Cheating has evolved—from hidden notes and cell phones to impersonation and outside help. These dishonest practices undermine exam credibility, which is why you need robust and scalable proctoring solutions.
+
+Traditional proctoring methods (e. g., physical invigilation and online human monitoring) have been used to prevent cheating, but they suffer from several limitations.
+Labor-intensive: Requires a large number of invigilators for large-scale examinations.
+Human error: Proctors may miss instances of subtle cheating, leading to inconsistent monitoring.
+When conducting large online exams with thousands of participants, scalability becomes an issue that makes monitoring very challenging.Privacy concerns are also raised for some online proctoring solutions that collect excessive data and engage in intrusive monitoring.These challenges highlight the need for advancements in technology-based exam proctoring to maintain academic integrity while achieving efficiency, fairness, and privacy.
