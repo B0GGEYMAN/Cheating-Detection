@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Guardian - Proctoring System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 800px;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #4CAF50;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+
+    .log-container {
+      max-height: 150px;
+      overflow-y: auto;
+      background-color: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+
+    .log-entry {
+      padding: 5px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+
+    .threshold-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>AI Guardian - Proctoring System</h1>
+
+  <!-- ✅ Student Verification Form -->
+  <form id="studentForm">
+    <input type="text" id="studentId" placeholder="Student ID" required />
+    <input type="text" id="studentName" placeholder="Student Name" required />
+    <input type="email" id="studentEmail" placeholder="Student Email" required />
+    <button type="submit">Verify Student</button>
+    <p id="verifyMessage"></p>
+  </form>
+
+  <!-- ✅ Live Video Stream -->
+  <video id="videoStream" autoplay muted></video>
+
+  <!-- ✅ Threshold Adjustment -->
+  <div class="threshold-input">
+    <label for="threshold">Threshold:</label>
+    <input type="number" id="threshold" min="0" max="1" step="0.01" value="0.7" />
+    <button onclick="setThreshold()">Set Threshold</button>
+  </div>
+
+  <!-- ✅ Event Log -->
+  <div class="log-container" id="eventLog">
+    <p class="log-entry">Event logs will appear here...</p>
+  </div>
+</div>
+
+<!-- ✅ JavaScript -->
+<script>
+  // ✅ Start video stream
+  async function startVideo() {
+    const video = document.getElementById('videoStream');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+    } catch (error) {
+      console.error('[AI Guardian] Error accessing webcam:', error);
+    }
+  }
+
+  // ✅ Verify student details
+  document.getElementById('studentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const studentId = document.getElementById('studentId').value;
+    const studentName = document.getElementById('studentName').value;
+    const studentEmail = document.getElementById('studentEmail').value;
+
+    const data = { student_id: studentId, student_name: studentName, student_email: studentEmail };
+
+    try {
+      const response = await fetch('/verify_student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      document.getElementById('verifyMessage').textContent = result.message;
+
+      if (response.ok) {
+        document.getElementById('verifyMessage').style.color = 'green';
+        console.log('[AI Guardian] Student verified successfully.');
+      } else {
+        document.getElementById('verifyMessage').style.color = 'red';
+        console.error('[AI Guardian] Student verification failed.');
+      }
+    } catch (error) {
+      console.error('[AI Guardian] Error verifying student:', error);
+    }
+  });
+
+  // ✅ Set cheating threshold
+  async function setThreshold() {
+    const threshold = parseFloat(document.getElementById('threshold').value);
+
+    if (threshold >= 0 && threshold <= 1) {
+      try {
+        const response = await fetch('/set_threshold', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ threshold })
+        });
+
+        const result = await response.json();
+        alert(result.message);
+        console.log(`[AI Guardian] Threshold set to ${threshold}`);
+      } catch (error) {
+        console.error('[AI Guardian] Error setting threshold:', error);
+      }
+    } else {
+      alert('Threshold should be between 0 and 1');
+    }
+  }
+
+  // ✅ Fetch and display event logs
+  async function fetchEventLogs() {
+    try {
+      const response = await fetch('/detections');
+      const logs = await response.json();
+
+      const logContainer = document.getElementById('eventLog');
+      logContainer.innerHTML = '';
+
+      logs.forEach(log => {
+        const logEntry = document.createElement('div');
+        logEntry.classList.add('log-entry');
+        logEntry.textContent = `${log.timestamp}: ${log.label} - Confidence: ${log.confidence}`;
+        logContainer.appendChild(logEntry);
+     
